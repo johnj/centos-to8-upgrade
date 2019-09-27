@@ -31,6 +31,9 @@ CONFIG_DIRS=${CONFIG_DIRS:-etc}
 test "$(whoami)" == "root"
 preflight_check "if you are running this as root" $? "you need to run me as root"
 
+test "$(grep VERSION_ID /etc/os-release | awk -F'=' '{ print $2 }')" == '"7"'
+preflight_check "if you are running this on a RHEL-like 7 system" $? "you need to run me from a RHEL-like 7 OS"
+
 if [[ ! -d $STAGING_DIR ]]; then
   mkdir -p $STAGING_DIR
   for i in `echo dev proc run`; do
@@ -71,7 +74,7 @@ if [[ $? -eq 0 ]]; then
 fi
 
 info "starting to make a copy of /${CONFIG_DIRS} into ${STAGING_DIR}"
-rsync -avu /${CONFIG_DIRS} ${STAGING_DIR}
+rsync -avu /${CONFIG_DIRS} ${STAGING_DIR} 2>&1 | tee -a $STAGING_DIR/to8.log
 info "finished making a copy of /${CONFIG_DIRS} into ${STAGING_DIR}"
 
 info "setting up CentOS 8 repository in ${STAGING_DIR}"
@@ -149,11 +152,11 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
 EOF
 
 info "starting CentOS-8 setup in ${STAGING_DIR}"
-script -ac "yum install -y --installroot=$STAGING_DIR hostname yum centos-release-8.0 glibc-langpack-en $(rpmquery -a --queryformat '%{NAME} ')" $STAGING_DIR/to8_typescript
+yum install -y --installroot=$STAGING_DIR hostname yum centos-release-8.0 glibc-langpack-en $(rpmquery -a --queryformat '%{NAME} ') 2>&1 | tee -a $STAGING_DIR/to8.log
 info "finished CentOS-8 setup in ${STAGING_DIR}"
 
 info "beginning to sync ${STAGING_DIR} to /"
-rsync -irazvAX --progress --backup --backup-dir=$STAGING_DIR/to8_backup_$(date +\%Y-\%m-\%d) $STAGING_DIR/* / --exclude="var/cache/yum/x86_64/8/BaseOS/packages" --exclude="tmp" --exclude="sys" --exclude="lost+found" --exclude="mnt" --exclude="proc" --exclude="dev" --exclude="media" --exclude="to8_typescript"
+rsync -irazvAX --progress --backup --backup-dir=$STAGING_DIR/to8_backup_$(date +\%Y-\%m-\%d) $STAGING_DIR/* / --exclude="var/cache/yum/x86_64/8/BaseOS/packages" --exclude="tmp" --exclude="sys" --exclude="lost+found" --exclude="mnt" --exclude="proc" --exclude="dev" --exclude="media" --exclude="to8.yum.log"
 info "finished syncing ${STAGING_DIR} to /"
 
 info "refreshing grub config for /boot"
@@ -176,10 +179,13 @@ fi
 
 if [ -n "$SELINUX_BEFORE" ]; then
   info "Almost done, since you had SELinux enabled, attempting to restore the contexts."
-  script -ac 'restorecon -Rv /' $STAGING_DIR/to8_typescript
+  restorecon -Rv / 2>&1 | tee -a $STAGING_DIR/to8.log
   info "SELinux contexts restored."
 fi
 
 systemctl daemon-reload
+
+echo "Packages which could not be migrated into CentOS 8 using the base repositories:"
+grep -e 'No package .* available' $STAGING_DIR/to8.log | awk '{ print $3 }' | tr $'\n' ' '
 
 info "CentOS-8 has been setup, please reboot to load the CentOS-8 kernel and modules."
