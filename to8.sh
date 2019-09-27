@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# to8.sh
+# https://github.com/johnj/centos-to8-upgrade
 
 # CentOS no longer provides a supported path for upgrading CentOS-7 systems to
 # CentOS-8.
@@ -40,8 +40,8 @@ if [[ ! -d $STAGING_DIR ]]; then
 fi
 
 available=$(df --total $STAGING_DIR | tail -n1 | awk '{ print $4 }')
-test "$((available))" -gt $((600 * 1024))
-preflight_check "if you have at least 600MB in the staging directory (${STAGING_DIR}), you can override this by setting the env var STAGING_DIR (ie, STAGING_DIR='/var/to8' $0)" $? "you need at least 600MB of free space to run me"
+test "$((available))" -ge 2000000
+preflight_check "if you have at least 2GB in the staging directory (${STAGING_DIR}), you can override this by setting the env var STAGING_DIR (ie, STAGING_DIR='/var/to8' $0)" $? "you need at least 2GB of free space to run me"
 
 echo
 echo "Preflight checks PASSED"
