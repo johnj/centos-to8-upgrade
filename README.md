@@ -11,6 +11,15 @@ in-place/online upgrade to 8.
 Backups are your friend, it is entirely possible you will be left with a
 non-functioning and irrepairable system after this process finishes.
 
+### Requirements
+
+* CentOS-7
+* 2GB of available disk space on the $STAGING_DIR location (default /to8).
+
+### Important Files
+
+This process will attempt to backup all changed files into $STAGING_DIR/to8_backup_timestamp (default /to8/to8_backup_%d_m_y).
+
 ### Environment Variables
 
 | EnvVar | Default Value | Description |
