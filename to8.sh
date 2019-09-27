@@ -53,13 +53,18 @@ if [[ $? -eq 0 ]]; then
   selinuxenabled 2>/dev/null 1> /dev/null
   if [[ $? -eq 0 ]]; then
     echo "SELinux is enabled, this process will temporarily set SELinux to Permissive mode, continue? [Y/n]"
-    read -n 1 yn
+    if [ -z "${NONINTERACTIVE}" ]; then
+      read -n 1 yn
+    else
+      yn="y"
+    fi
     echo
-    if [[ "$yn" == "n" ]]; then
+    if [[ "${yn}" == "n" ]]; then
       echo "Aborting $0"
       exit 4
     else
       echo "Continuing..."
+      SELINUX_BEFORE="$(getenforce)"
       setenforce 0
     fi
   fi
@@ -125,12 +130,30 @@ enabled=1
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
 EOF
 
+cat >$STAGING_DIR/etc/yum.repos.d/CentOS-AppStream.repo <<EOF
+[AppStream]
+name=CentOS-8 - AppStream
+mirrorlist=http://mirrorlist.centos.org/?release=8&arch=\$basearch&repo=AppStream&infra=\$infra
+gpgcheck=1
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+EOF
+
+cat >$STAGING_DIR/etc/yum.repos.d/CentOS-Extras.repo <<EOF
+[Extras]
+name=CentOS-8 - Extras
+mirrorlist=http://mirrorlist.centos.org/?release=8&arch=\$basearch&repo=Extras&infra=\$infra
+gpgcheck=1
+enabled=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
+EOF
+
 info "starting CentOS-8 setup in ${STAGING_DIR}"
-yum install -y --installroot=$STAGING_DIR hostname yum centos-release-8.0 glibc-langpack-en $(rpmquery -a --queryformat "%{NAME} ")
+script -ac "yum install -y --installroot=$STAGING_DIR hostname yum centos-release-8.0 glibc-langpack-en $(rpmquery -a --queryformat '%{NAME} ')" $STAGING_DIR/to8_typescript
 info "finished CentOS-8 setup in ${STAGING_DIR}"
 
 info "beginning to sync ${STAGING_DIR} to /"
-rsync -razv --progress --backup --backup-dir=$STAGING_DIR/to8_backup_$(date +\%Y-\%m-\%d) $STAGING_DIR/* / --exclude="var/cache/yum/x86_64/8/BaseOS/packages" --exclude="tmp" --exclude="sys" --exclude="lost+found" --exclude="mnt" --exclude="proc" --exclude="dev" --exclude="media"
+rsync -irazvAX --progress --backup --backup-dir=$STAGING_DIR/to8_backup_$(date +\%Y-\%m-\%d) $STAGING_DIR/* / --exclude="var/cache/yum/x86_64/8/BaseOS/packages" --exclude="tmp" --exclude="sys" --exclude="lost+found" --exclude="mnt" --exclude="proc" --exclude="dev" --exclude="media" --exclude="to8_typescript"
 info "finished syncing ${STAGING_DIR} to /"
 
 info "refreshing grub config for /boot"
@@ -143,17 +166,20 @@ for f in `ls /etc/yum.repos.d/CentOS*.repo.rpmnew`; do
   mv -vf $f $n
 done
 
-info "setting up new repo files"
-for f in `ls /etc/yum.repos.d/CentOS*.repo.rpmnew`; do
-  n=$(echo $f | sed -e 's/\.rpmnew$//')
-  mv -vf $f $n
-done
-
 mv /etc/os-release /etc/os-release.rpmold
 mv /etc/os-release.rpmnew /etc/os-release
 
+# this locale reference seems to have changed in 8
 if [[ "$LANG" == "en_US.UTF-8" ]]; then
   localectl set-locale en_US.utf8
 fi
+
+if [ -n "$SELINUX_BEFORE" ]; then
+  info "Almost done, since you had SELinux enabled, attempting to restore the contexts."
+  script -ac 'restorecon -Rv /' $STAGING_DIR/to8_typescript
+  info "SELinux contexts restored."
+fi
+
+systemctl daemon-reload
 
 info "CentOS-8 has been setup, please reboot to load the CentOS-8 kernel and modules."
