@@ -16,4 +16,5 @@ non-functioning and irrepairable system after this process finishes.
 | EnvVar | Default Value | Description |
 | ------ | ------ | ------ |
 | STAGING_DIR | /to8 | set this to use an alternative staging directory |
+| CONFIG_DIRS | /etc | possible configuration directories, usually /etc is sufficient. For multiple directories set to something like "/{etc,/usr/share}" |
 | NO_PROMPTS | false | set this to a non-empty value to suppress prompts (currently the only prompt is for disabling SELinux enforcement) |
