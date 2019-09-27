@@ -15,5 +15,5 @@ non-functioning and irrepairable system after this process finishes.
 
 | EnvVar | Default Value | Description |
 | ------ | ------ | ------ |
-| STAGING_DIR | /to8 | set this to an alternative staging directory |
+| STAGING_DIR | /to8 | set this to use an alternative staging directory |
 | NO_PROMPTS | false | set this to a non-empty value to suppress prompts (currently the only prompt is for disabling SELinux enforcement) |
