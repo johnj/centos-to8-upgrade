@@ -8,6 +8,8 @@ CentOS-8 (Stream).
 So here is a HIGHLY EXPERIMENTAL and HIGHLY DANGEROUS script for doing an
 in-place/online upgrade to 8.
 
+Most of the testing has been done on 7-Server. For desktops, YMMV.
+
 Backups are your friend, it is entirely possible you will be left with a
 non-functioning and irrepairable system after this process finishes.
 
