@@ -24,7 +24,7 @@ $ curl https://raw.githubusercontent.com/johnj/centos-to8-upgrade/master/to8.sh 
 
 ### Important Files
 
-This process will attempt to backup all changed files into $STAGING_DIR/to8_backup_timestamp (default /to8/to8_backup_%d_m_y).
+This process will attempt to backup all changed files into $STAGING_DIR/to8_backup_timestamp (default /to8/to8_backup_%Y_%m_%d).
 
 ### Environment Variables
 
