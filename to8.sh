@@ -188,4 +188,6 @@ systemctl daemon-reload
 echo "Packages which could not be migrated into CentOS 8 using the base repositories:"
 grep -e 'No package .* available' $STAGING_DIR/to8.log | awk '{ print $3 }' | tr $'\n' ' '
 
+echo
+
 info "CentOS-8 has been setup, please reboot to load the CentOS-8 kernel and modules."
