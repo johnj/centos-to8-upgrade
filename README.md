@@ -34,12 +34,12 @@ This process will attempt to backup all changed files into $STAGING_DIR/to8_back
 | ------ | ------ | ------ |
 | STAGING_DIR | /to8 | set this to use an alternative staging directory |
 | CONFIG_DIRS | /etc | possible configuration directories, usually /etc is sufficient. For multiple directories set to something like "/{etc,/usr/share}" |
-| NONINTERACTIVE | false | set this to a non-empty value to suppress interactive prompts (currently the only prompt is for temporarily SELinux enforcement to "Permissive") |
+| NONINTERACTIVE | false | set this to a non-empty value to suppress interactive prompts (currently the only prompt is to temporarily set SELinux enforcement to "Permissive") |
 
 ### CentOS-8-Stream
 
 This process installs CentOS-8. After this process is finished, if you would like to move to CentOS-8-Stream, simply run:
 
 ```sh
-# yum install --enablerepo="extras" centos-release-stream
+$ sudo yum install --enablerepo="extras" centos-release-stream
 ```
