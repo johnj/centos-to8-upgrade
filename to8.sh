@@ -169,9 +169,6 @@ for f in `ls /etc/yum.repos.d/CentOS*.repo.rpmnew`; do
   mv -vf $f $n
 done
 
-mv /etc/os-release /etc/os-release.rpmold
-mv /etc/os-release.rpmnew /etc/os-release
-
 # this locale reference seems to have changed in 8
 if [[ "$LANG" == "en_US.UTF-8" ]]; then
   localectl set-locale en_US.utf8
