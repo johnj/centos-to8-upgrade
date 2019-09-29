@@ -152,7 +152,7 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
 EOF
 
 info "starting CentOS-8 setup in ${STAGING_DIR}"
-yum install -y --installroot=$STAGING_DIR hostname yum centos-release-8.0 glibc-langpack-en $(rpmquery -a --queryformat '%{NAME} ') 2>&1 | tee -a $STAGING_DIR/to8.log
+yum install -y --installroot=$STAGING_DIR hostname yum centos-release centos-release-8.0 glibc-langpack-en $(rpmquery -a --queryformat '%{NAME} ') 2>&1 | tee -a $STAGING_DIR/to8.log
 info "finished CentOS-8 setup in ${STAGING_DIR}"
 
 info "beginning to sync ${STAGING_DIR} to /"
@@ -181,7 +181,7 @@ fi
 
 if [ -n "$SELINUX_BEFORE" ]; then
   info "Almost done, since you had SELinux enabled, attempting to restore the contexts."
-  restorecon -Rv / 2>&1 | tee -a $STAGING_DIR/to8.log
+  restorecon -e $STAGING_DIR -Rv / 2>&1 | tee -a $STAGING_DIR/to8.log
   info "SELinux contexts restored."
 fi
 
