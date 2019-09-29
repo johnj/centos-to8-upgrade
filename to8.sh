@@ -188,3 +188,4 @@ grep -e 'No package .* available' $STAGING_DIR/to8.log | awk '{ print $3 }' | tr
 echo
 
 info "CentOS-8 has been setup, please reboot to load the CentOS-8 kernel and modules."
+info "If you would like to move to CentOS-8-Stream, please install the centos-release-stream package from CentOS Extras."
