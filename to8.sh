@@ -169,6 +169,11 @@ for f in `ls /etc/yum.repos.d/CentOS*.repo.rpmnew`; do
   mv -vf $f $n
 done
 
+if [ -e /etc/os-release.rpmnew ]; then
+  mv /etc/os-release /etc/os-release.rpmold
+  mv /etc/os-release.rpmnew /etc/os-release
+fi
+
 # this locale reference seems to have changed in 8
 if [[ "$LANG" == "en_US.UTF-8" ]]; then
   localectl set-locale en_US.utf8
@@ -188,4 +193,6 @@ grep -e 'No package .* available' $STAGING_DIR/to8.log | awk '{ print $3 }' | tr
 echo
 
 info "CentOS-8 has been setup, please reboot to load the CentOS-8 kernel and modules."
-info "If you would like to move to CentOS-8-Stream, please install the centos-release-stream package from CentOS Extras."
+
+info "If you would like to move to CentOS-8-Stream, please install the centos-release-stream package from CentOS Extras by running:"
+info 'yum install --enablerepo="extras" centos-release-stream'
