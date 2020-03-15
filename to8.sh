@@ -152,7 +152,7 @@ gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-centosofficial
 EOF
 
 info "starting CentOS-8 setup in ${STAGING_DIR}"
-yum install -y --installroot=$STAGING_DIR hostname yum centos-release centos-release-8.0 glibc-langpack-en $(rpmquery -a --queryformat '%{NAME} ') 2>&1 | tee -a $STAGING_DIR/to8.log
+yum install -y --installroot=$STAGING_DIR hostname yum centos-release glibc-langpack-en $(rpmquery -a --queryformat '%{NAME} ') 2>&1 | tee -a $STAGING_DIR/to8.log
 info "finished CentOS-8 setup in ${STAGING_DIR}"
 
 info "beginning to sync ${STAGING_DIR} to /"
