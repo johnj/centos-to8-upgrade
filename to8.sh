@@ -34,7 +34,7 @@ preflight_check "if you are running this as root" $? "you need to run me as root
 test "$(grep VERSION_ID /etc/os-release | awk -F'=' '{ print $2 }')" == '"7"'
 preflight_check "if you are running this on a RHEL-like 7 system" $? "you need to run me from a RHEL-like 7 OS"
 
-test [ -x "$(command -v rsync)" ]
+test -x "$(command -v rsync)" 
 preflight_check "if rsync is installed" $? "you need to install rsync"
 
 if [[ ! -d $STAGING_DIR ]]; then
